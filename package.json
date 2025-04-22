@@ -1,0 +1,35 @@
+{
+    "name": "document-analyzer-api",
+    "version": "1.0.0",
+    "main": "server.js",
+    "scripts": {
+      "dev": "nodemon server.js",
+      "start": "node server.js",
+      "build": "netlify build"
+    },
+    "keywords": [
+      "document",
+      "analysis",
+      "pdf",
+      "image",
+      "api",
+      "openai"
+    ],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "description": "API for analyzing documents using OpenAI",
+    "dependencies": {
+      "cors": "^2.8.5",
+      "dotenv": "^16.4.7",
+      "express": "^4.21.2",
+      "multer": "^1.4.5-lts.1",
+      "openai": "^4.85.2",
+      "pdf-parse": "^1.1.1",
+      "parse-multipart-data": "^1.5.0"
+    },
+    "devDependencies": {
+      "netlify-cli": "^17.21.0",
+      "nodemon": "^3.1.9"
+    }
+  }
