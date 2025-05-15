@@ -1,6 +1,8 @@
 const { OpenAI } = require("openai");
 const pdfParse = require("pdf-parse");
 const multipart = require('parse-multipart-data');
+const sharp = require('sharp');
+const documentAnalysisPrompt = require('./prompts/document-analysis');
 
 // Initialize OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -83,7 +85,34 @@ exports.handler = async (event, context) => {
       numPages = pdfData.numpages;
     } else if (fileType.startsWith("image/")) {
       // Process image using OpenAI Vision
-      const base64Image = fileBuffer.toString('base64');
+      // Compress and resize the image before processing
+      let compressedImageBuffer;
+      try {
+        // Determine the image format for sharp based on the fileType
+        let outputFormat = 'jpeg'; // Default to jpeg for best compression
+        
+        // Configure sharp with optimal settings for OCR
+        compressedImageBuffer = await sharp(fileBuffer)
+          .resize({
+            width: 1500, // Keep reasonable resolution for text recognition
+            height: 1500,
+            fit: 'inside', // Maintain aspect ratio
+            withoutEnlargement: true // Don't upscale small images
+          })
+          .toFormat(outputFormat, {
+            quality: 85, // Good balance between quality and file size
+            progressive: true
+          })
+          .toBuffer();
+          
+        console.log(`Image compressed from ${fileBuffer.length} to ${compressedImageBuffer.length} bytes`);
+      } catch (compressionError) {
+        console.error('Image compression failed:', compressionError);
+        // Fallback to original image if compression fails
+        compressedImageBuffer = fileBuffer;
+      }
+      
+      const base64Image = compressedImageBuffer.toString('base64');
       const visionResponse = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
@@ -105,56 +134,13 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // OpenAI Prompt to ensure structured JSON
-    const prompt = `
-    Extract structured document details from this text. If the document contains multiple items (e.g., multiple invoices or letters), list them separately in an array.
-    
-    IMPORTANT: Return ONLY the raw JSON without any markdown formatting, code blocks, or explanations. Do not use \`\`\` or any other formatting.
-    
-    The response format must always be:
-    
-    {
-      "totalPages": <total number of pages>,
-      "uniquePages": <count of unique pages>,
-      "documents": [
-        {
-          "startPage": <page number>,
-          "endPage": <page number>,
-          "sender": {
-            "name": "<sender name>",
-            "address": "<sender address>",
-            "companyNumber": "<company number>",
-            "email": "<sender email>",
-            "phone": "<sender phone number>"
-          },
-          "receiver": {
-            "name": "<receiver name>",
-            "address": "<receiver address>"
-          },
-          "documentDetails": {
-            "caseNumber": "<case number>",
-            "invoiceAmount": <invoice amount>,
-            "dueDate": "<due date>",
-            "dateCreated": "<creation date>",
-            "dateSent": "<sent date>",
-            "summary": "<brief one-sentence summary>",
-            "documentType": "<type of document: invoice, letter, etc.>"
-          }
-        }
-      ]
-    }
-
-    Ensure the JSON format remains the same, even if some values are missing (use null or empty strings).
-    If a value isn't present in the document, use null.
-    For numeric values like invoiceAmount, use actual numbers (not strings) when present; otherwise use null.
-    
-    Remember: Return ONLY the raw JSON without any formatting or explanation.`;
+    // Use the imported OpenAI prompt for document analysis
 
     // Send extracted text to OpenAI
     const aiResponse = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        { role: "system", content: prompt },
+        { role: "system", content: documentAnalysisPrompt },
         { role: "user", content: extractedText }
       ]
     });
