@@ -4,19 +4,28 @@
  */
 
 module.exports = `
-Extract structured document details from this text. If the document contains multiple items (e.g., multiple invoices or letters), list them separately in an array.
+Extract structured document details from this text. If the file contains multiple documents (e.g., multiple invoices or letters), list them separately in an array.
+
+IMPORTANT PAGE NUMBERING:
+- totalPages: The total number of pages in the entire PDF file
+- For each document in the array:
+  - startPage: The page number (from the total file) where this specific document begins
+  - endPage: The page number (from the total file) where this specific document ends
+  
+Example: A 4-page PDF file might contain:
+- Document 1: starts on page 1, ends on page 3
+- Document 2: starts on page 4, ends on page 4
 
 IMPORTANT: Return ONLY the raw JSON without any markdown formatting, code blocks, or explanations. Do not use \`\`\` or any other formatting.
 
 The response format must always be:
 
 {
-  "totalPages": <total number of pages>,
-  "uniquePages": <count of unique pages>,
+  "totalPages": <total number of pages in the entire PDF file>,
   "documents": [
     {
-      "startPage": <page number>,
-      "endPage": <page number>,
+      "startPage": <page number where this document starts in the total file>,
+      "endPage": <page number where this document ends in the total file>,
       "sender": {
         "name": "<sender name>",
         "address": "<sender address>",
