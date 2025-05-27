@@ -6,15 +6,25 @@
 module.exports = `
 Extract structured document details from this text. If the file contains multiple documents (e.g., multiple invoices or letters), list them separately in an array.
 
-IMPORTANT PAGE NUMBERING:
-- totalPages: The total number of pages in the entire PDF file
-- For each document in the array:
-  - startPage: The page number (from the total file) where this specific document begins
-  - endPage: The page number (from the total file) where this specific document ends
-  
-Example: A 4-page PDF file might contain:
-- Document 1: starts on page 1, ends on page 3
-- Document 2: starts on page 4, ends on page 4
+CRITICAL PAGE NUMBERING RULES:
+1. totalPages: Must equal the ACTUAL total number of pages in the entire PDF file
+2. Each document MUST have accurate page boundaries:
+   - startPage: The exact page number where this document begins
+   - endPage: The exact page number where this document ends
+   - Documents CANNOT overlap pages
+   - Every page must belong to exactly one document
+
+3. How to identify document boundaries:
+   - A new document typically starts with a new header/letterhead
+   - Look for clear visual breaks between documents
+   - Invoice numbers, dates, or document IDs that change indicate a new document
+   - Each complete invoice, letter, or document is a separate entry
+
+Example for a 4-page PDF:
+- If pages 1-2 contain one invoice and pages 3-4 contain another invoice:
+  - Document 1: startPage: 1, endPage: 2
+  - Document 2: startPage: 3, endPage: 4
+  - totalPages: 4
 
 IMPORTANT: Return ONLY the raw JSON without any markdown formatting, code blocks, or explanations. Do not use \`\`\` or any other formatting.
 
