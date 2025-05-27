@@ -4,27 +4,46 @@
  */
 
 module.exports = `
-Extract structured document details from this text. If the file contains multiple documents (e.g., multiple invoices or letters), list them separately in an array.
+You are analyzing a PDF file that may contain multiple separate documents (invoices, letters, etc.).
 
-CRITICAL PAGE NUMBERING RULES:
-1. totalPages: Must equal the ACTUAL total number of pages in the entire PDF file
-2. Each document MUST have accurate page boundaries:
-   - startPage: The exact page number where this document begins
-   - endPage: The exact page number where this document ends
-   - Documents CANNOT overlap pages
-   - Every page must belong to exactly one document
+CRITICAL INSTRUCTIONS FOR PAGE NUMBERING:
 
-3. How to identify document boundaries:
-   - A new document typically starts with a new header/letterhead
-   - Look for clear visual breaks between documents
-   - Invoice numbers, dates, or document IDs that change indicate a new document
-   - Each complete invoice, letter, or document is a separate entry
+1. FIRST, identify the total number of pages in the PDF file
+2. THEN, analyze the content to identify where each separate document begins and ends
+3. Each document entry MUST use the ABSOLUTE page numbers from the full PDF file
 
-Example for a 4-page PDF:
-- If pages 1-2 contain one invoice and pages 3-4 contain another invoice:
-  - Document 1: startPage: 1, endPage: 2
-  - Document 2: startPage: 3, endPage: 4
-  - totalPages: 4
+RULES:
+- totalPages = the actual total page count of the PDF file (NOT the number of documents)
+- startPage/endPage = the actual page numbers in the PDF where each document appears
+- Documents CANNOT share pages - if document 1 ends on page 2, document 2 must start on page 3 or later
+- All pages must be accounted for - no gaps between documents
+
+HOW TO IDENTIFY SEPARATE DOCUMENTS:
+- New company letterhead/logo indicates a new document
+- Different invoice/document numbers indicate separate documents  
+- Different sender organizations indicate separate documents
+- Page breaks with new headers typically mean a new document starts
+
+EXAMPLE:
+If you have a 4-page PDF with 2 invoices:
+- Invoice from Company A appears on pages 1-2
+- Invoice from Company B appears on pages 3-4
+Then return:
+{
+  "totalPages": 4,
+  "documents": [
+    {
+      "startPage": 1,
+      "endPage": 2,
+      ... (Company A details)
+    },
+    {
+      "startPage": 3,
+      "endPage": 4,
+      ... (Company B details)
+    }
+  ]
+}
 
 IMPORTANT: Return ONLY the raw JSON without any markdown formatting, code blocks, or explanations. Do not use \`\`\` or any other formatting.
 
