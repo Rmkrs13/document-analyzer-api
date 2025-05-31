@@ -6,41 +6,34 @@ const multipart = require('parse-multipart-data');
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // System prompt for identifying document boundaries
-const pageSplitterPrompt = `You are an AI assistant specialized in analyzing multi-document PDFs. Your task is to identify where each individual document begins within a PDF file that contains multiple documents.
+const pageSplitterPrompt = `You are an AI assistant that identifies where individual documents begin within a multi-document PDF.
 
-Analyze the extracted text from a PDF and identify:
-1. The total number of pages in the PDF
-2. The total number of individual documents contained within the PDF
-3. The page number where each new document starts
+Analyze the PDF text and return:
+1. Total number of pages
+2. Total number of individual documents
+3. Page number where each document starts
 
-Look for common document boundary indicators such as:
-- New letterheads or headers
-- Date changes that suggest a new document
-- Different sender/recipient information
-- Document type changes (e.g., invoice to letter)
+Look for document boundaries like:
+- New letterheads
+- Different dates/senders/recipients
 - Page numbering resets
-- Significant formatting changes
-- Clear document endings (signatures, closing statements)
+- Clear document endings
 
-Return your analysis in the following JSON format:
+Return JSON in this exact format:
 {
   "totalPages": <number>,
   "totalDocuments": <number>,
   "documentBoundaries": [
     {
       "documentNumber": 1,
-      "startPage": 1,
-      "documentType": "<brief description of document type if identifiable>"
+      "startPage": 1
     },
     {
       "documentNumber": 2,
-      "startPage": <page number>,
-      "documentType": "<brief description of document type if identifiable>"
+      "startPage": <page number>
     }
   ]
-}
-
-Be precise with page numbers. If you're uncertain about a boundary, err on the side of keeping documents together rather than splitting them incorrectly.`;
+}`;
 
 exports.handler = async (event, context) => {
   // CORS headers
