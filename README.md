@@ -11,6 +11,14 @@
 
 A Netlify serverless API for analyzing documents using OpenAI's GPT-4 with vision capabilities. The API supports PDFs and images, extracting structured information from invoices, letters, and other documents.
 
+## Quick Deploy
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Rmkrs13/document-analyzer-api)
+
+**Required Environment Variables:**
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `SECRET_KEY`: Bearer token for API authentication
+
 ## Authentication
 
 All endpoints require bearer token authentication. Include the following header in your requests:
