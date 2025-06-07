@@ -4,7 +4,7 @@
 > This API was created as part of the bachelor's thesis/graduation assignment of **Kevin Malekera**, **Lars Raeymaekers** & **Jenna Van De Vyver** for their Digital Experience Design study at Thomas More University of Applied Sciences.
 > 
 > **Project Information:**
-> - **Main Project**: [Loepos Platform](https://github.com/kevinmlk/loepos-platform)
+> - **Main Project on GitHub**: [Loepos Platform](https://github.com/kevinmlk/loepos-platform)
 > - **Live Demo**: [app.loepos.be](https://app.loepos.be)
 > - **Landing Page**: [loepos.be](https://loepos.be)
 > - **Description**: AI-driven Laravel platform for social services
